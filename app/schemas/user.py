@@ -8,7 +8,7 @@ class UserBase(BaseModel):
     birth_date: date
     age: int
     phone: str
-    role: str
+    role: str = "patient"
     is_active: bool = True 
 
 class UserCreate(UserBase):
