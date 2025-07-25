@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-import datetime
+from  datetime import datetime
 from enum import Enum 
 from typing import Optional
 
@@ -9,6 +9,7 @@ class AppointmentStatus(str, Enum):
     cancelled = "cancelled"
 
 class AppointmentBase(BaseModel):
+    title:str 
     patient_id:int
     doctor_id:int
     service_id:int
@@ -16,9 +17,14 @@ class AppointmentBase(BaseModel):
     status: AppointmentStatus
     notes: Optional[str]
 
-
 class AppointmentCreate(AppointmentBase):
     pass
+
+class AppointmentUpdate(BaseModel):
+    title:Optional[str]
+    date: Optional[datetime]
+    status: Optional[AppointmentStatus]
+    notes: Optional[str]
 
 class Appointment(AppointmentBase):
     id:int 

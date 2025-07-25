@@ -6,6 +6,9 @@ class PatientBase(BaseModel):
 class PatientCreate(PatientBase):
     pass
 
+class PatientUpdate(BaseModel):
+    user_id:int
+    
 class Patient(PatientBase):
       id:int
 

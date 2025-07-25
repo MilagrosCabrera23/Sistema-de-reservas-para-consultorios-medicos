@@ -11,6 +11,13 @@ class ServiceBase(BaseModel):
 class ServiceCreate(ServiceBase):
     pass
 
+class ServiceUpdate(BaseModel):
+    name: Optional[str] = None
+    reason: Optional[str] = None
+    price: Optional[float] = None
+    description: Optional[str] = None
+    duration: Optional[int] = None
+
 class Service(ServiceBase):
     id: int
 
