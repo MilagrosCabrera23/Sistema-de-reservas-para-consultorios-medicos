@@ -1,6 +1,7 @@
 from sqlalchemy import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi.responses import JSONResponse
 
 from app.core.database.session import get_db
 from app.core.dependencies.auth import get_current_admin, get_current_user
@@ -25,6 +26,7 @@ async def get_service_by_id_route(service_id: int, db: Session = Depends(get_db)
 async def update_service_route(service_id: int, service_in: ServiceUpdate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return update_service(db, service_id, service_in)
 
-@router.delete("/{service_id}", response_model=Service)
+@router.delete("/{service_id}")
 async def delete_service_route(service_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
-    return delete_service(db, service_id)
+    result =  delete_service(db, service_id)
+    return JSONResponse(content=result)

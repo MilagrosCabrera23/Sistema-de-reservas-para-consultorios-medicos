@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Date
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 
 class User(Base): 
@@ -14,3 +15,9 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False) 
     is_active = Column(Boolean, default=True)
+
+    patient = relationship("Patient", back_populates="user", uselist=False)
+    doctor = relationship("Doctor", back_populates="user", uselist=False)
+    appointments = relationship("Appointment", back_populates="user")
+    medical_history = relationship("MedicalHistory", back_populates="user")
+

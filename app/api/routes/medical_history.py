@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 
 from app.core.database.session import get_db
 from app.core.dependencies.auth import get_current_admin, get_current_user
@@ -26,5 +27,8 @@ async def update_medical_history_route(medical_history_id: int, medical_history_
 
 @router.delete("/{medical_history_id}")
 async def delete_medical_history_route(medical_history_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
-    return delete_medical_history(db, medical_history_id)
+    result =  delete_medical_history(db, medical_history_id)
+    return JSONResponse(content=result)
+
+
 

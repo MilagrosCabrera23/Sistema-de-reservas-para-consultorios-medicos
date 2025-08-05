@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi.responses import JSONResponse
 
 from app.core.database.session import get_db
 from app.core.dependencies.auth import get_current_admin, get_current_user
@@ -33,6 +34,7 @@ async def get_schedule_by_name_route(name: str, db: Session = Depends(get_db), c
 async def update_schedule_route(schedule_id: int, schedule_in: ScheduleUpdate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return update_schedule(db, schedule_id, schedule_in)
 
-@router.delete("/{schedule_id}", response_model=Schedule)
+@router.delete("/{schedule_id}")
 async def delete_schedule_route(schedule_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
-    return delete_schedule(db, schedule_id)
+    result = delete_schedule(db, schedule_id)
+    return JSONResponse(content=result)

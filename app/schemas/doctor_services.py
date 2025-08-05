@@ -6,7 +6,8 @@ class DoctorServicesBase(BaseModel):
 
 class DoctorServicesCreate(DoctorServicesBase):
     pass 
+
 class DoctorServices(DoctorServicesBase):
 
     class Config:
-        orm_mode = True
+      from_attributes = True

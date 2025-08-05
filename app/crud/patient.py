@@ -1,39 +1,45 @@
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 from app.models.patient import Patient
 from app.schemas.patient import PatientCreate, PatientUpdate
+from app.repositories.patient_repository import (
+    get_patient_by_id,
+    create_new_patient,
+    update_patient,
+    get_all_patients,
+    get_patient_by_name,
+    delete_patient) 
 from fastapi import HTTPException
 
-
 def create_new_patient(db: Session, patient_in: PatientCreate):
-    db_patient = Patient(**patient_in.model_dump())
-    db.add(db_patient)
-    db.commit()
-    db.refresh(db_patient)
-    return db_patient
+    existing_patient = get_patient_by_name(db, patient_in.name)
+    if existing_patient:
+        raise HTTPException(status_code=400, detail="El paciente ya ha sido registrado")
+    return create_new_patient(db, patient_in)
 
 def get_all_patients(db: Session):
-    return db.query(Patient).all()
+    return get_all_patients(db)
 
 def get_patient_by_id(db: Session, patient_id: int):
-    patient =  db.query(Patient).filter(Patient.id == patient_id).first()
+    patient = get_patient_by_id(db, patient_id)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    return patient
+
+def get_patient_by_name(db: Session, patient_name: str):
+    patient = get_patient_by_name(db, patient_name)
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
     return patient
 
 def update_patient(db: Session, patient_id: int, updated_data: PatientUpdate):
     patient = get_patient_by_id(db, patient_id)
-    for key, value in updated_data.model_dump(exclude_unset=True).items():
-        setattr(patient, key, value)
-    db.commit()
-    db.refresh(patient)
-    return patient
-
-def delete_patient(db: Session, patient_id: int, updated_data: PatientUpdate):
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    return update_patient(db, patient, updated_data)
+    
+def delete_patient(db: Session, patient_id: int):
     db_patient = get_patient_by_id(db, patient_id)
-    for key, value in updated_data.model_dump(exclude_unset=True).items():
-        setattr(db_patient, key, value)
-    db.delete(db_patient)
-    db.commit()
-     
-    delete_patient(db, patient_id)
+    if not db_patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    delete_patient(db, db_patient)
     return {"detail": "Paciente eliminado correctamente"}

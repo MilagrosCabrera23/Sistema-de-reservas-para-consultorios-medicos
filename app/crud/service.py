@@ -1,35 +1,39 @@
 from sqlalchemy.orm import Session
 from app.models.service import Service
 from app.schemas.service import ServiceCreate, ServiceUpdate
-
+from app.repositories.service_repository import get_service_by_id, create_new_service,get_service_by_name, get_all_services, update_service, delete_service
 from fastapi import HTTPException
 
 def create_new_service(db: Session, service_in: ServiceCreate):
-    db_service = Service(**service_in.model_dump())
-    db.add(db_service)
-    db.commit()
-    db.refresh(db_service)
-    return db_service
+   existing_service = get_service_by_name(db, service_in.name)
+   if existing_service:
+       raise HTTPException(status_code=400, detail="El servicio ya ha sido registrado")
+   return create_new_service(db, service_in)
 
 def get_all_services(db: Session):
-    return db.query(Service).all()
+    return get_all_services(db)
 
-def get_service_by_id(db: Session, service_id: int):
-    service =  db.query(Service).filter(Service.id == service_id).first()
+def get_service_by_name(db: Session, name: str):
+    service = get_service_by_name(db, name)
     if not service:
         raise HTTPException(status_code=404, detail="No se encontro el servicio")
     return service
 
-def update_service(db: Session, service_id: int, service_in: ServiceUpdate):
+def get_service_by_id(db: Session, service_id: int):
     db_service = get_service_by_id(db, service_id)
-    for key, value in service_in.model_dump(exclude_unset=True).items():
-        setattr(db_service, key, value)
-    db.commit()
-    db.refresh(db_service)
+    if not db_service:
+        raise HTTPException(status_code=404, detail="No se encontro el servicio")
     return db_service
 
+def update_service(db: Session, service_id: int, service_in: ServiceUpdate):
+    service = get_service_by_id(db, service_id)
+    if not service:
+        raise HTTPException(status_code=404, detail="No se encontro el servicio")
+    return update_service(db, service, service_in)
+
 def delete_service(db: Session, service_id: int):
-    db_service = get_service_by_id(db, service_id)
-    db.delete(db_service)
-    db.commit()
-    return {"details": "Servicio eliminado correctamente"}
+   db_service = get_service_by_id(db, service_id)
+   if not db_service:
+       raise HTTPException(status_code=404, detail="No se encontro el servicio")
+   delete_service(db, db_service)
+   return {"details": "Servicio eliminado correctamente"}

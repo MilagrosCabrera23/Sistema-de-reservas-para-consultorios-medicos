@@ -1,33 +1,46 @@
 from sqlalchemy.orm import  Session
 from app.models.schedule import Schedule
 from app.schemas.schedule import ScheduleCreate, ScheduleUpdate
+from app.repositories.schedule_repository import (
+    create_new_schedule,
+    get_schedule_by_id,
+    get_schedule_by_name,
+    update_schedule,
+    get_all_schedules,
+    delete_schedule
+)
+from fastapi import HTTPException
 
 def create_new_schedule(db:Session, schedule_in: ScheduleCreate):
-    db_schedule = Schedule(**schedule_in.model_dump())
-    db.add(db_schedule)
-    db.commit()
-    db.refresh(db_schedule)
-    return db_schedule
+    existing_schedule = get_schedule_by_name(db, schedule_in.name)
+    if existing_schedule:
+        raise HTTPException(status_code=400, detail="El horario ya ha sido registrado")
+    return create_new_schedule(db, schedule_in)
 
 def get_all_schedules(db:Session):
-    return db.query(Schedule).all()
+    return get_all_schedules(db)
 
 def get_schedule_by_id(db:Session, schedule_id:int):
-    return db.query(Schedule).filter(Schedule.id == schedule_id).first()
+    db_schedule = get_schedule_by_id(db, schedule_id)
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail="No se encontro el horario")
+    return db_schedule
 
 def get_schedule_by_name(db:Session, schedule_name:str):
-    return db.query(Schedule).filter(Schedule.name == schedule_name).first()
+   db_schedule = get_schedule_by_name(db, schedule_name)
+   if not db_schedule:
+       raise HTTPException(status_code=404, detail="No se encontro el horario")
+   return db_schedule
 
 def update_schedule(db:Session, schedule_id:int, schedule_in:ScheduleUpdate):
     db_schedule = get_schedule_by_id(db, schedule_id)
-    for key, value in schedule_in.model_dump(exclude_unset=True).items():
-        setattr(db_schedule, key, value)
-    db.commit()
-    db.refresh(db_schedule)
-    return db_schedule
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail="No se encontro el horario")
+    return update_schedule(db, db_schedule, schedule_in)
 
 def delete_schedule(db:Session, schedule_id:int):
     db_schedule = get_schedule_by_id(db, schedule_id)
-    db.delete(db_schedule)
-    db.commit()
+    if not db_schedule:
+        raise HTTPException(status_code=404, detail="No se encontro el horario")
+    delete_schedule(db, db_schedule)
     return {"details": "Horario eliminado correctamente"}

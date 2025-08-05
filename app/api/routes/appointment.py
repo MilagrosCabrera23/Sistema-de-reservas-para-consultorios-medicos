@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Query,HTTPException   
 from typing import List
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.core.database.session import get_db
@@ -36,6 +37,7 @@ def get_appointments_by_title_route(
 async def update_appointment(appointment_id: int, appointment: AppointmentUpdate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return update_appointment(db, appointment_id, appointment)
 
-@router.delete("/{appointment_id}", response_model=Appointment)
+@router.delete("/{appointment_id}")
 async def delete_appointment(appointment_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
-    return delete_appointment(db, appointment_id)
+    result = delete_appointment(db, appointment_id)
+    return JSONResponse(content=result)

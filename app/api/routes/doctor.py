@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List 
+from fastapi.responses import JSONResponse
 
 from app.core.database.session import get_db
 from app.core.dependencies.auth import get_current_admin, get_current_user
@@ -48,5 +49,5 @@ async def delete_doctor_route(
     db: Session = Depends(get_db),
     current_admin = Depends(get_current_admin)
 ):
-    delete_doctor(db, doctor_id)
-    return {"details": "Doctor eliminado correctamente"}
+    result = delete_doctor(db, doctor_id)
+    return JSONResponse(content=result)

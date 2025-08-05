@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from app.core.security import create_access_token,verify_password, hash_password

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi.responses import JSONResponse
 
 from app.core.database.session import get_db
 from app.core.dependencies.auth import get_current_admin, get_current_user
@@ -33,4 +34,5 @@ async def update_user_route(user_id: int, user_in: UserUpdate, db: Session = Dep
 
 @router.delete("/{user_id}")
 async def delete_user_route(user_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
-    return delete_user(db, user_id)
+    result = delete_user(db, user_id)
+    return JSONResponse(content = result)
