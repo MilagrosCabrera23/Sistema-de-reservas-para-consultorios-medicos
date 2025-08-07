@@ -15,15 +15,15 @@ router = APIRouter(prefix="/appointments", tags=["Appointments"])
 async def create_appointment(appointment: AppointmentCreate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return create_new_appointment(db, appointment=appointment)
 
-@router.get("/", response_model=List[Appointment])
+@router.get("/", response_model=List[Appointment],status_code=200)
 async def get_all_appointments(db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return get_all_appointment(db)
 
-@router.get("/{appointment_id}", response_model=Appointment)
+@router.get("/{appointment_id}", response_model=Appointment,status_code=200)
 async def get_appointment_by_id(appointment_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return get_appointment_by_id(db, appointment_id)
 
-@router.get("/by-title/", response_model=list[Appointment])
+@router.get("/by-title/", response_model=list[Appointment],status_code=200)
 def get_appointments_by_title_route(
     title: str = Query(..., description="Título de la cita a buscar"),
     db: Session = Depends(get_db)
@@ -33,11 +33,11 @@ def get_appointments_by_title_route(
         raise HTTPException(status_code=404, detail="No se encontraron citas con ese título")
     return results
 
-@router.put("/{appointment_id}", response_model=Appointment)
+@router.put("/{appointment_id}", response_model=Appointment,status_code=200)
 async def update_appointment(appointment_id: int, appointment: AppointmentUpdate, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     return update_appointment(db, appointment_id, appointment)
 
-@router.delete("/{appointment_id}")
+@router.delete("/{appointment_id}",status_code=204)
 async def delete_appointment(appointment_id: int, db: Session = Depends(get_db), current_admin = Depends(get_current_admin)):
     result = delete_appointment(db, appointment_id)
     return JSONResponse(content=result)

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.service import Service
 from app.schemas.service import ServiceCreate, ServiceUpdate
 
-def create_new_service(db: Session, service: ServiceCreate) -> Service:
+def create_service(db: Session, service: ServiceCreate) -> Service:
     db_service = Service(**service.model_dump())
     db.add(db_service)
     db.commit()
